@@ -6,7 +6,7 @@ Usage:
 
 Options:
 
-  --debug=bool   Run logger in debug mode   [default: true]
+  --debug=bool   Run logger in debug mode   [default: false]
   --print=bool   Print matches to the terminal   [default: true]
 '''
 
@@ -153,8 +153,29 @@ def load_text(text_file):
     with open(text_file, 'r') as f:
         return f.read()
 
+
 def main():
-    
+    '''
+    Main function:
+        - Gets keywords from file and processes them
+        - Constructs a trie with the words as nodes
+        - Consumes a text or list of texts from the user
+        - Performs a linear search to determine whether a text
+          contains the terms of interest and reports which relevant
+          terms appear in which documents
+
+    Todo:
+        - I had an index-returning function for where in the text
+          the matches occur, but benchmarks were weirdly slow, 
+          so that needs to be revisited
+        - The processing and search could be better integrated and
+          sped up -- utilizing something like spaCy's PhraseMatcher,
+          which is a trie-based implementation of a search, could
+          leverage the speed enhancements of the c structs to actually
+          do something like this in production.
+        - If not returning indexes or fulltext/span context matches,
+          then deduplicate matches
+    '''    
     args = docopt(__doc__)
         
     logger = logging.getLogger(__name__)
@@ -164,8 +185,6 @@ def main():
     else:
         logger.setLevel(logging.WARNING)
 
-
-    logger.debug(args)
     logger.debug(f"Keyword file: {args['--keywords']}")
     util = TextUtil(vocab_file=args["--keywords"])
     
@@ -192,34 +211,15 @@ def main():
                         print(match)
                 print("-"*40)
             with open("trie_output.txt", "a") as f:
-                f.write(args["<textfiles>"][i])
+                f.write(args["<textfiles>"][i] + "\t")
                 for match in hits:
                     try:
-                        f.write("\t" + match)
+                        f.write(match + "\t")
                     except TypeError as e:
                         logger.debug(f"Match cannot be written: {e}")
                         continue
+                f.write("\n")    
+
 
 if __name__ == '__main__':
     main()
-    #main()
-    #trie = Trie()
-    #sent = "The operations of each Borrower, and the activities of the officers and directors and, to the knowledge of each Borrower, any Subsidiaries of the Borrowers, employees, agents and representatives of each Borrower, while acting on behalf of such Borrower, and to the knowledge of each Borrower the operations of each Material Project Party in relation to the Project, have been conducted at all times in compliance with all applicable Anti-Money Laundering Laws, Sanctions, and Anti-Corruption Laws."
-    #keywords = ["Project",
-    #        "Project Manager",
-    #        "Anti-Money Laundering Laws",
-    #        "Material Project Party",
-    #        "Anti-Corruption Laws"]
-    #
-    #u = TextUtil(keywords)
-    #proc = u.preprocess(sent.lower())
-#
-    #kw = [u.preprocess(k.lower()) for k in keywords]
-#
-    #trie = Trie()
-    ##for k in kw:
-    #    #trie.add(k)
-    #trie.add_many(kw)
-#
-#
-    #print(trie.find_phrases(proc))

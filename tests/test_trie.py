@@ -24,12 +24,3 @@ for key in keywords:
 def test_node():
     node.children = {"a": {"c": {}}, "b": {"d": {}}}
     assert node[["a"]] == [{"c": {}}]
-
-@pytest.mark.parametrize("expected", keywords)
-def test_find_phrases(expected):
-    trie = Trie()
-    trie.add_many(keywords)
-    #for key in keywords:
-    #    trie.add(key.lower().split())
-
-    assert expected in trie.head.children
