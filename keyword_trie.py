@@ -218,7 +218,7 @@ def main():
                     except TypeError as e:
                         logger.debug(f"Match cannot be written: {e}")
                         continue
-                f.write("\n")    
+                f.write("\n")
 
 
 if __name__ == '__main__':
