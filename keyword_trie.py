@@ -12,8 +12,11 @@ Options:
 
 import logging
 from docopt import docopt
-from typing import Text, List, Dict, Optional, Union
+from typing import List, Dict
 from textutil import TextUtil
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 
 class Node:
@@ -31,6 +34,8 @@ class Node:
     def __getitem__(self, data: List[str]):
         return [self.children[key] for key in data]
 
+    def __repr__(self):
+        return f"<Node {self.data} : children {self.children.keys()}>"
 
 class Trie:
     def __init__(self):
@@ -59,23 +64,29 @@ class Trie:
         # store the full phrase at end node
         current_node.data = " ".join(data)
 
-    def find_phrases(self, text: str):
+    def find_phrases(self, text):
         '''
         Finds phrases in text that are in the trie.
-        @param text: string to search
-
+        @param text: text to search
 
         '''
         found = []
         current_node = self.head
+        
         for key in text:
+            logger.debug(f"Current node: {current_node}")
+            logger.debug(f"eos {current_node.EOS}")
+            logger.debug(f"Current candidate: {key}")
+            
             if key in current_node.children:
                 current_node = current_node.children[key]
+                
             else:
                 if current_node.data is not None:
+                    logger.debug("Key not in children. Start over")
                     found.append(current_node.data)
-                current_node = self.head
-        found.append(current_node.data)
+                logger.debug(f"Found in else: {found} {current_node}")
+                current_node = self.head            
         return found
 
     def has_word(self, data):
@@ -187,8 +198,8 @@ def main():
     """
     args = docopt(__doc__)
 
-    logger = logging.getLogger(__name__)
-    logging.basicConfig(level=logging.DEBUG)
+
+
     if args["--debug"] == "true":
         logger.setLevel(logging.DEBUG)
     else:
