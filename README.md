@@ -2,6 +2,14 @@
 
 > Trie search with keyword nodes
 
+## Setup
+
+Create a virtual environment and install necessary packages:
+
+```sh
+pip install -r requirements.txt
+```
+
 ## Usage
 
 ```sh

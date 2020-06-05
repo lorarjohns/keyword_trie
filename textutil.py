@@ -1,10 +1,8 @@
-from logging import disable
 import re
 import string
 import logging
-import json
 
-from typing import List, Callable, Pattern
+from typing import List, Callable
 
 import spacy
 from spacy.lang.char_classes import ALPHA, ALPHA_LOWER, ALPHA_UPPER
