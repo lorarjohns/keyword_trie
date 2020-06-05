@@ -63,6 +63,8 @@ class Trie:
         '''
         Finds phrases in text that are in the trie.
         @param text: string to search
+
+
         '''
         found = []
         current_node = self.head
@@ -181,7 +183,7 @@ def main():
           leverage the speed enhancements of the c structs to actually
           do something like this in production.
         - If not returning indexes or fulltext/span context matches,
-          then deduplicate matches
+          then deduplicate matches. They are deduped in the printing
     """
     args = docopt(__doc__)
 
@@ -211,9 +213,10 @@ def main():
 
         if hits is not None:
             print(f"{len(hits)} matches found!")
+            print("\nMatching keywords:\n")
             print("-" * 40)
             if args["--print"] == "true":
-                for match in hits:
+                for match in set(hits):
                     if match:
                         print(match)
                 print("-" * 40)
