@@ -23,8 +23,9 @@ py.test --doctest-modules
 ```
 ## To Do
 
+- Lemma-to-original lookup to return the input text's surface form.
 - I had an index-returning function for where in the text
-  the matches occur, but benchmarks were weirdly slow, 
+  the matches occur, but benchmarks were weirdly slow,
   so that needs to be revisited
 - The processing and search could be better integrated and
   sped up -- utilizing something like spaCy's PhraseMatcher,
@@ -37,6 +38,10 @@ py.test --doctest-modules
   find_phrases algo -- fixing now, the `None`s are gone but I
   am aware of the breadth search problem that I introduced by typo'ing!
   Commit will come when I get another break.)
+- Fix prefix collapsing for some phrases: the way I've written this,
+  it's a problem for single-word vs. multi-word phrases where the single-
+  word keyword is a substring of the longer keyword. In the process
+  of fixing that.
 
 ## Author
 
