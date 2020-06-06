@@ -11,6 +11,7 @@ Options:
 """
 
 import logging
+from logging import log
 from docopt import docopt
 from typing import List, Dict
 from textutil import TextUtil
@@ -70,24 +71,19 @@ class Trie:
         @param text: text to search
 
         '''
-        found = []
-        current_node = self.head
         
+        found = []
+        current_node = self.head 
         for key in text:
-            logger.debug(f"Current node: {current_node}")
-            logger.debug(f"eos {current_node.EOS}")
-            logger.debug(f"Current candidate: {key}")
-            
+            logger.debug(f"KEY {key}")
             if key in current_node.children:
                 current_node = current_node.children[key]
-                
-            else:
-                if current_node.data is not None:
-                    logger.debug("Key not in children. Start over")
-                    found.append(current_node.data)
-                logger.debug(f"Found in else: {found} {current_node}")
-                current_node = self.head            
+            elif current_node.EOS:
+                found.append(current_node.data)
+                current_node = self.head
+
         return found
+
 
     def has_word(self, data):
         """
@@ -183,18 +179,6 @@ def main():
         - Performs a linear search to determine whether a text
           contains the terms of interest and reports which relevant
           terms appear in which documents
-
-    Todo:
-        - I had an index-returning function for where in the text
-          the matches occur, but benchmarks were weirdly slow, 
-          so that needs to be revisited
-        - The processing and search could be better integrated and
-          sped up -- utilizing something like spaCy's PhraseMatcher,
-          which is a trie-based implementation of a search, could
-          leverage the speed enhancements of the c structs to actually
-          do something like this in production.
-        - If not returning indexes or fulltext/span context matches,
-          then deduplicate matches. They are deduped in the printing
     """
     args = docopt(__doc__)
 
