@@ -71,17 +71,17 @@ class Trie:
         @param text: text to search
 
         '''
-        
+
         found = []
         current_node = self.head 
         for key in text:
-            logger.debug(f"KEY {key}")
             if key in current_node.children:
                 current_node = current_node.children[key]
-            elif current_node.EOS:
-                found.append(current_node.data)
+            else:
+                if current_node.EOS:
+                    found.append(current_node.data)
                 current_node = self.head
-
+        ####
         return found
 
 
