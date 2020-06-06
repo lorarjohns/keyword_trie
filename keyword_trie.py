@@ -11,7 +11,7 @@ Options:
 """
 
 import logging
-from logging import log
+from logging import Logger, log
 from docopt import docopt
 from typing import List, Dict
 from textutil import TextUtil
@@ -49,9 +49,24 @@ class Trie:
         for item in list_data:
             self.add(item)
 
+    #def add(self, data):
+    #    current_node = self.head
+    #    current_node.EOS = False
+#
+    #    for key in data:
+    #        if key in current_node.children:
+    #            current_node = current_node.children[key]
+    #        else:
+    #            current_node.addChild(key)
+    #            current_node = current_node.children[key]
+    #    else:
+    #        current_node.EOS = True
+#
+    #    # store the full phrase at end node
+    #    current_node.data = " ".join(data)
+
     def add(self, data):
         current_node = self.head
-        current_node.EOS = False
 
         for key in data:
             if key in current_node.children:
@@ -60,10 +75,9 @@ class Trie:
                 current_node.addChild(key)
                 current_node = current_node.children[key]
         else:
+            # store the full phrase at end node
             current_node.EOS = True
-
-        # store the full phrase at end node
-        current_node.data = " ".join(data)
+            current_node.data = " ".join(data)
 
     def find_phrases(self, text):
         '''
@@ -71,19 +85,32 @@ class Trie:
         @param text: text to search
 
         '''
-
         found = []
-        current_node = self.head 
+        current_node = self.head
+        
         for key in text:
+            #logger.debug(f"key:::{key}")
+            #logger.debug(f"current:::{current_node}")
             if key in current_node.children:
                 current_node = current_node.children[key]
-            else:
                 if current_node.EOS:
                     found.append(current_node.data)
+                    #logger.debug(f"appending {current_node.data}")
+                    if len(current_node.children) == 0:
+                        current_node = self.head
+                    continue
+            else:
+                #logger.debug(f"ELSE {key}")
+                if current_node.EOS:
+                    found.append(current_node.data)
+                    #logger.debug(f"appending {current_node.data}")
                 current_node = self.head
-        ####
+        else:
+            if current_node.EOS:
+                found.append(current_node.data)
+                #logger.debug(f"appending {current_node.data}")
+                current_node = self.head
         return found
-
 
     def has_word(self, data):
         """
@@ -93,7 +120,7 @@ class Trie:
         """
         if len(data) == 0:
             return False
-        if data == None:
+        if data is None:
             raise ValueError("Input can't be null.")
 
         # Start at the top
@@ -109,7 +136,7 @@ class Trie:
 
         # Check if in vocabulary
         if exists:
-            if current_node.data == None:
+            if current_node.data is None:
                 exists = False
 
         return exists
@@ -120,7 +147,7 @@ class Trie:
         @param prefix: the prefix to search. (Breadth first)
         """
         words = list()
-        if prefix == None:
+        if prefix is None:
             raise ValueError("Prefix cannot be null")
 
         # Determine end-of-prefix node
@@ -143,7 +170,7 @@ class Trie:
         # a list of phrases by increasing length
         while queue:
             current_node = queue.pop()
-            if current_node.data != None:
+            if current_node.data is not None:
                 words.append(current_node.data)
 
             queue = [node for key, node in current_node.children.items()] + queue
@@ -198,14 +225,15 @@ def main():
 
     trie = Trie()
     trie.add_many(keywords)
-    logger.debug(f"Root children: {trie.head.children.keys()}")
-
+    #logger.debug([[node for key, node in subnode.children.items()] for subnode in trie.head.children.values()])
+    #logger.debug(trie.head.children.keys())
     for i, doc in enumerate(args["<textfiles>"]):
         print(f"Searching doc {i+1} of {num_docs}...")
 
         text = util.preprocess(load_text(doc))
         hits = trie.find_phrases(text)
-
+        kwset = set([" ".join(k) for k in keywords])
+        logger.debug(f" hits :{set(hits)}, kw: {kwset}")
         if hits is not None:
             print(f"{len(hits)} matches found!")
             print("\nMatching keywords:\n")
