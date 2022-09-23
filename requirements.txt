@@ -62,7 +62,7 @@ pluggy==0.13.1
 portend==2.6
 preshed==3.0.2
 prompt-toolkit==3.0.5
-protobuf==3.12.2
+protobuf==3.18.3
 ptyprocess==0.6.0
 py==1.8.1
 pycodestyle==2.6.0
